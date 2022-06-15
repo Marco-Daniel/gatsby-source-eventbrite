@@ -1,2 +1,2 @@
 // Defining all available endpoints for the eventbrite API
-exports.defaultEntities = ['events', 'venues']
+export const defaultEntities = ["events", "venues"];
