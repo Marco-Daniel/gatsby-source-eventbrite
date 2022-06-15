@@ -1,17 +1,16 @@
 import { GatsbyNode } from "gatsby";
 import { fetch } from "./src/fetch";
-import { defaultEntities } from "./src/defaultEntities";
-import { linkEventWithVenue } from "./src/createNodeRelations";
-import { processEntry } from "./src/processEntry";
-import { withLocalMedia } from "./src/withLocalMedia";
+import { entitiesToFetch } from "./src/entitiesToFetch";
+import { createNodes } from "./src/createNodes";
+// import { makeTypeName } from "./helpers/makeTypeName";
+// import { createRemoteFileNode } from "gatsby-source-filesystem";
 
 export const sourceNodes: GatsbyNode["sourceNodes"] = async (
-  { actions, cache, createNodeId, reporter },
-  options
+  gatsbyApi,
+  pluginOptions
 ) => {
-  const { createNode, touchNode } = actions;
-  const { organizationId, accessToken } = options;
-  const entities = Array.isArray(options.entities) ? options.entities : [];
+  const { reporter } = gatsbyApi;
+  const { organizationId, accessToken } = pluginOptions;
 
   // check if provided plugin options are properly configured
   if (typeof organizationId !== "string") {
@@ -25,44 +24,57 @@ export const sourceNodes: GatsbyNode["sourceNodes"] = async (
   }
 
   // Merge default entities with configured ones
-  const entitiesToFetch = [...new Set([...defaultEntities, ...entities])];
+  // use Set to remove duplicates
+  const entities = entitiesToFetch(pluginOptions.entities);
 
   // Fetch all defined entities and create nodes
-  const nodes = {};
-
-  const processedEntries = entitiesToFetch.map((entity) => {
-    return fetch({ organizationId, accessToken, entity, reporter })
-      .then((entries) =>
-        entries[entity].map((entry) =>
-          processEntry(entry, entity, createNodeId)
-        )
-      )
-      .then((entries) =>
-        Promise.all(
-          entries.map(async (entry) => {
-            const entryWithLocalMedia = await withLocalMedia({
-              entity,
-              entry,
-              createNode,
-              createNodeId,
-              cache,
-              touchNode,
-            });
-            return entryWithLocalMedia;
-          })
-        )
-      )
-      .then((entries) => (nodes[entity] = entries));
+  const eventbriteData = await fetch({
+    organizationId,
+    accessToken,
+    entities,
+    reporter,
   });
 
-  await Promise.all(processedEntries).then(() => {
-    Object.keys(nodes).forEach((entity) => {
-      if (entity === "events") {
-        nodes[entity].forEach(() => {
-          linkEventWithVenue(nodes, entity);
-        });
-      }
-      nodes[entity].forEach((entry) => createNode(entry));
-    });
-  });
+  createNodes(eventbriteData, gatsbyApi);
 };
+
+// export const onCreateNode: GatsbyNode["onCreateNode"] = async (
+//   gatsbyApi,
+//   pluginOptions
+// ) => {
+//   const { node, actions, createNodeId, getCache } = gatsbyApi;
+//   const { createNode, createNodeField } = actions;
+
+//   const entities = entitiesToFetch(pluginOptions.entities);
+
+//   if (entities.some((entity) => node.internal.type === makeTypeName(entity))) {
+//     const fileNode = await createRemoteFileNode({
+//       url: (node.logo as any).url,
+//       parentNodeId: node.id,
+//       createNode,
+//       createNodeId,
+//       getCache,
+//     });
+
+//     console.log(fileNode);
+
+//     if (fileNode) {
+//       createNodeField({ node, name: "localFile", value: fileNode.id });
+//     }
+//   }
+// };
+
+// export const createSchemaCustomization: GatsbyNode["createSchemaCustomization"] =
+//   (gatsbyApi, pluginOptions) => {
+//     const { createTypes } = gatsbyApi.actions;
+
+//     const entities = entitiesToFetch(pluginOptions.entities);
+
+//     entities.forEach((entity) => {
+//       createTypes(`
+//       type ${makeTypeName(entity)} implements Node {
+//         localFile: File @link(from: "fields.localFile")
+//       }
+//     `);
+//     });
+//   };

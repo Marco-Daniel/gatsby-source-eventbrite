@@ -1,10 +1,8 @@
-
 # gatsby-source-eventbrite
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/GatsbyCentral/gatsby-source-eventbrite.svg)](https://greenkeeper.io/)
-[![Build Status](https://travis-ci.org/GatsbyCentral/gatsby-source-eventbrite.svg?branch=master)](https://travis-ci.org/GatsbyCentral/gatsby-source-eventbrite)
+Source plugin for pulling events and related data from eventbrite.
 
-Source plugin for pulling events and related data from eventbrite. 
+FORKED FROM: [https://github.com/GatsbyCentral/gatsby-source-eventbrite](https://github.com/GatsbyCentral/gatsby-source-eventbrite)
 
 WORK IN PROGRESS: At the moment it just fetches `events` and `venues` from eventbrite.com without further processing or filtering. Other Endpoints are configurable but haven't been tested yet.
 Works with Eventbrite's API v3.
@@ -24,8 +22,8 @@ plugins: [
       organizationId: `The ID of your organization`,
       accessToken: `your_access_token`,
       // OPTIONAL: Defaults are Events and Venues
-      entities: ['events', 'venues','...']
+      entities: ["events", "venues", "..."],
     },
   },
-]
+];
 ```
