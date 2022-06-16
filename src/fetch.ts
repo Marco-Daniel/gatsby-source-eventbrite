@@ -19,7 +19,11 @@ export const fetch = async ({
   reporter,
 }: FetchInput) =>
   entities.reduce(async (acc, entity) => {
-    reporter.info(`Fetch Eventbrite data for '${entity}' entity`);
+    const timer = reporter.activityTimer(
+      `Fetch Eventbrite data for '${entity}' entity`
+    );
+    timer.start();
+
     // Fetch events from the user (paginated, 50 per page)
     // TODO Implement other URI's
     let fetchResults: any[] = [];
@@ -45,6 +49,9 @@ export const fetch = async ({
         httpExceptionHandler(e, reporter);
       }
     }
+
+    timer.setStatus(`total: ${fetchResults.length}`);
+    timer.end();
 
     acc[entity] = [...fetchResults];
 
