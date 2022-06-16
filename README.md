@@ -9,7 +9,9 @@ Works with Eventbrite's API v3.
 
 ## Install
 
-`npm install --save gatsby-source-eventbrite`
+`git clone https://github.com/Marco-Daniel/gatsby-source-eventbrite.git` into `./plugins/`
+
+see [https://www.gatsbyjs.com/docs/creating-a-local-plugin/](https://www.gatsbyjs.com/docs/creating-a-local-plugin/) for more information about using local plugins in gatsby
 
 ## How to use
 
