@@ -22,7 +22,7 @@ export const fetch = async ({
     reporter.info(`Fetch Eventbrite data for '${entity}' entity`);
     // Fetch events from the user (paginated, 50 per page)
     // TODO Implement other URI's
-    let fetchResults = [];
+    let fetchResults: any[] = [];
     let continueFetching = true;
     let page = 1;
 
@@ -49,4 +49,4 @@ export const fetch = async ({
     acc[entity] = [...fetchResults];
 
     return acc;
-  }, {});
+  }, {} as any);
